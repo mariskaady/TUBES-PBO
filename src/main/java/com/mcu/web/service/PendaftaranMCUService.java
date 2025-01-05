@@ -3,14 +3,18 @@ package com.mcu.web.service;
 import com.mcu.web.models.PendaftaranMCU;
 import com.mcu.web.models.Pasien;
 import com.mcu.web.models.PaketMCU;
+import com.mcu.web.models.User;
 import com.mcu.web.repository.PendaftaranMCURepository;
 import com.mcu.web.repository.PasienRepository;
 import com.mcu.web.repository.PaketMCURepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PendaftaranMCUService {
@@ -23,6 +27,10 @@ public class PendaftaranMCUService {
 
     @Autowired
     private PaketMCURepository paketMCURepository;
+
+    public PendaftaranMCU save(PendaftaranMCU pendaftaranMCU) {
+        return pendaftaranMCURepository.save(pendaftaranMCU);
+    }
 
     // Mendaftarkan pasien untuk MCU
     public PendaftaranMCU registerForMCU(Long pasienId, Long paketMCUId) {
@@ -38,11 +46,35 @@ public class PendaftaranMCUService {
         return pendaftaranMCURepository.save(pendaftaranMCU);
     }
 
-    // Mengambil pendaftaran berdasarkan ID
-    public PendaftaranMCU getPendaftaranById(Long id) {
-        // Mencari pendaftaran berdasarkan ID
-        return pendaftaranMCURepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Pendaftaran dengan ID " + id + " tidak ditemukan"));
+    public void updatePendaftaranMCU(PendaftaranMCU pendaftaranMCU) {
+        Optional<PendaftaranMCU> existingPendaftaranMCU = pendaftaranMCURepository.findById(pendaftaranMCU.getId());
+
+        if (existingPendaftaranMCU.isPresent()) {
+            PendaftaranMCU updatedPendaftaranMCU = existingPendaftaranMCU.get();
+
+            // Update status and tanggalPendaftaran
+            updatedPendaftaranMCU.setStatus(pendaftaranMCU.getStatus());
+            updatedPendaftaranMCU.setTanggalPendaftaran(pendaftaranMCU.getTanggalPendaftaran());
+
+            // Check if Pasien is set in the request, if not, retain the existing Pasien
+            if (pendaftaranMCU.getPasien() != null && pendaftaranMCU.getPasien().getId() != null) {
+                Pasien pasien = pasienRepository.findById(pendaftaranMCU.getPasien().getId())
+                        .orElseThrow(() -> new IllegalArgumentException("Pasien not found with id: " + pendaftaranMCU.getPasien().getId()));
+                updatedPendaftaranMCU.setPasien(pasien);
+            }
+
+            // Check if PaketMCU is set in the request, if not, retain the existing PaketMCU
+            if (pendaftaranMCU.getPaketMCU() != null && pendaftaranMCU.getPaketMCU().getId() != null) {
+                PaketMCU paketMCU = paketMCURepository.findById(pendaftaranMCU.getPaketMCU().getId())
+                        .orElseThrow(() -> new IllegalArgumentException("PaketMCU not found with id: " + pendaftaranMCU.getPaketMCU().getId()));
+                updatedPendaftaranMCU.setPaketMCU(paketMCU);
+            }
+
+            // Save the updated PendaftaranMCU entity
+            pendaftaranMCURepository.save(updatedPendaftaranMCU);
+        } else {
+            throw new IllegalArgumentException("PendaftaranMCU not found with id: " + pendaftaranMCU.getId());
+        }
     }
 
     // Mencari pasien yang mendaftar pada periode tertentu
@@ -72,14 +104,58 @@ public class PendaftaranMCUService {
         }
     }
 
-    // Menghapus pendaftaran berdasarkan ID
-    public void deletePendaftaran(Long id) {
-        // Memastikan bahwa pendaftaran dengan ID yang diberikan ada
-        PendaftaranMCU pendaftaranMCU = pendaftaranMCURepository.findById(id).orElse(null);
-        if (pendaftaranMCU != null) {
-            pendaftaranMCURepository.delete(pendaftaranMCU); // Menghapus data pendaftaran
-        } else {
-            throw new IllegalArgumentException("Pendaftaran dengan ID " + id + " tidak ditemukan");
-        }
+    public List<PendaftaranMCU> findAll() {
+        return pendaftaranMCURepository.findAll();
+    }
+
+    public List<PendaftaranMCU> cariReservasi(String namaPasien, Long paketMCU, String tanggalPendaftaran) {
+        LocalDate tanggal = (tanggalPendaftaran != null && !tanggalPendaftaran.isEmpty())
+                ? LocalDate.parse(tanggalPendaftaran)
+                : null;
+        return pendaftaranMCURepository.cariReservasi(namaPasien, paketMCU, tanggal);
+    }
+
+    public PendaftaranMCU findById(Long id) {
+        return pendaftaranMCURepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("PendaftaranMCU not found with id: " + id));
+    }
+
+    public long getJumlahProgres() {
+        return pendaftaranMCURepository.countByStatusProgres();
+    }
+
+    public long getJumlahSelesai() {
+        return pendaftaranMCURepository.countByStatusSelesai();
+    }
+
+    public String getTotalHargaSelesai() {
+        Double totalHarga = pendaftaranMCURepository.sumHargaByStatusSelesai();
+        // Jika totalHarga null, anggap 0.0
+        totalHarga = (totalHarga != null) ? totalHarga : 0.0;
+        // Format angka tanpa desimal jika nilai bulat
+        DecimalFormat df = new DecimalFormat("#.##");
+        return df.format(totalHarga);
+    }
+
+    // Menghapus PendaftaranMCU berdasarkan ID
+    public void delete(PendaftaranMCU pendaftaranMCU) {
+        pendaftaranMCURepository.delete(pendaftaranMCU);
+    }
+
+    // Atau Anda bisa menggunakan method deleteById
+    public void deleteById(Long id) {
+        pendaftaranMCURepository.deleteById(id);
+    }
+
+    public void update(PendaftaranMCU pendaftaranMCU) {
+        pendaftaranMCURepository.save(pendaftaranMCU); // Save perubahan
+    }
+
+    public List<PendaftaranMCU> findByUser(User user) {
+        return pendaftaranMCURepository.findByUser(user);
+    }
+
+    public List<PendaftaranMCU> getProgresOrderedByTanggal() {
+        return pendaftaranMCURepository.findProgresOrderedByTanggal();
     }
 }

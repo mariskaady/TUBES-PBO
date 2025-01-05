@@ -5,6 +5,7 @@ import com.mcu.web.service.PaketMCUService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -62,5 +63,11 @@ public class PaketMCUController {
     public ResponseEntity<List<PaketMCU>> getPaketByKategori(@PathVariable String kategori) {
         List<PaketMCU> paketList = paketMCUService.findByKategori(kategori);
         return ResponseEntity.ok(paketList);
+    }
+
+    @GetMapping("/paketMCU/form")
+    public String tampilkanForm(Model model) {
+        model.addAttribute("paketMCU", new PaketMCU());
+        return "formPaketMCU";  // Nama view thymeleaf
     }
 }

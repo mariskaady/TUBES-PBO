@@ -28,4 +28,10 @@ public interface PaketMCURepository extends JpaRepository<PaketMCU, Long> {
 
     @Query("SELECT COUNT(p) FROM PaketMCU p WHERE LOWER(p.kategori) LIKE LOWER(CONCAT('%', :kategori, '%'))")
     Long countByKategoriContainingIgnoreCase(@Param("kategori") String kategori);
+
+    List<PaketMCU> findByTipeContainingIgnoreCase(String tipe);
+
+    @Query("SELECT MIN(p.harga) FROM PaketMCU p WHERE p.tipe = :tipe")
+    Integer findHargaTermurahByJenisPemeriksaan(@Param("tipe") String tipe);
+
 }

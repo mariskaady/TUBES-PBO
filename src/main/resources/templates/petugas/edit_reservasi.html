@@ -1,6 +1,5 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,14 +7,14 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
-
 <body>
 <div class="container-fluid">
-  <div class="row vh-100">
-
+  <div class="row" style="height: 100vh;">
     <!-- Sidebar -->
-    <aside class="col-2 bg-primary text-white d-flex flex-column p-3">
-      <h4 class="text-center mb-4">BANDUNG SEHAT</h4>
+    <div class="col-2 bg-primary text-white">
+      <div class="p-3 text-center">
+        <h4>BANDUNG SEHAT</h4>
+      </div>
       <nav class="nav flex-column">
         <a class="nav-link text-white" th:href="@{/dashboard}"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
         <a class="nav-link text-white" th:href="@{/dashboard/reservasi}"><i class="bi bi-people-fill me-2"></i>Resevasi</a>
@@ -23,53 +22,54 @@
         <a class="nav-link text-white" th:href="@{/dashboard/petugas}"><i class="bi bi-file-person-fill me-2"></i>Petugas</a>
         <a class="nav-link text-white" th:href="@{/}"><i class="bi bi-house-door-fill me-2"></i>Home</a>
       </nav>
-    </aside>
+    </div>
 
     <!-- Main Content -->
-    <main class="col-10">
-
+    <div class="col-10">
       <!-- Navbar -->
       <nav class="navbar navbar-light bg-light shadow-sm mb-3">
-        <div class="container-fluid d-flex justify-content-between align-items-center">
+        <div class="container-fluid">
           <span class="navbar-text" th:text="'Welcome, ' + ${user.name}"></span>
           <form action="/login/logout" method="POST">
             <button class="btn btn-outline-primary">Logout</button>
           </form>
         </div>
       </nav>
-
-      <!-- Form Section -->
       <div class="container mt-5">
-        <h1 class="mb-4">Edit Paket MCU</h1>
-        <form action="/dashboard/paketmcu/update" method="POST">
+        <h1>Edit Reservasi</h1>
+        <form action="/dashboard/reservasi/update" method="POST">
           <div class="mb-3">
-            <label for="namaPaket" class="form-label">Nama Paket</label>
-            <input type="text" class="form-control" id="namaPaket" name="nama" th:value="${paketMCU.nama}" required>
+            <label for="namaPasien" class="form-label">Nama Pasien</label>
+            <input type="text" class="form-control" id="namaPasien" name="namaPasien" th:value="${pendaftaranMCU.pasien.nama}" disabled>
           </div>
           <div class="mb-3">
-            <label for="jenisPemeriksaan" class="form-label">Jenis Pemeriksaan</label>
-            <input type="text" class="form-control" id="jenisPemeriksaan" name="tipe" th:value="${paketMCU.tipe}" required>
+            <label for="paketMCU" class="form-label">Paket MCU</label>
+            <input type="text" class="form-control" id="paketMCU" name="paketMCU" th:value="${pendaftaranMCU.paketMCU.nama}" disabled>
           </div>
           <div class="mb-3">
-            <label for="kategori" class="form-label">Kategori</label>
-            <input type="text" class="form-control" id="kategori" name="kategori" th:value="${paketMCU.kategori}" required>
+            <label for="tanggalPendaftaran" class="form-label">Tanggal Pemeriksaan</label>
+            <input type="date" class="form-control" id="tanggalPendaftaran" name="tanggalPendaftaran" th:value="${pendaftaranMCU.tanggalPendaftaran}">
           </div>
           <div class="mb-3">
-            <label for="harga" class="form-label">Harga</label>
-            <input type="number" class="form-control" id="harga" name="harga" th:value="${paketMCU.harga}" required>
+            <label for="status" class="form-label">Status</label>
+            <select class="form-select" id="status" name="status">
+              <option value="Progres" th:selected="${pendaftaranMCU.status == 'Progres'}">Progres</option>
+              <option value="Selesai" th:selected="${pendaftaranMCU.status == 'Selesai'}">Selesai</option>
+            </select>
           </div>
-          <input type="hidden" name="id" th:value="${paketMCU.id}" />
-          <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+          <!-- Hidden Fields -->
+          <input type="hidden" name="pasien_id" th:value="${pendaftaranMCU.pasien.id}">
+          <input type="hidden" name="paket_mcu_id" th:value="${pendaftaranMCU.paketMCU.id}">
+          <input type="hidden" name="id" th:value="${pendaftaranMCU.id}">
+          <button type="submit" class="btn btn-primary">Update Reservasi</button>
+          <a th:href="@{/dashboard/petugas}" class="btn btn-secondary">Kembali</a>
         </form>
       </div>
-
-    </main>
-
+    </div>
   </div>
 </div>
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
-
 </html>

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -16,10 +16,11 @@
             <h4 class="text-center">BANDUNG SEHAT</h4>
           </div>
           <nav class="nav flex-column">
-            <a class="nav-link text-white" href="#"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
-            <a class="nav-link text-white" href="#"><i class="bi bi-person-fill me-2"></i>Petugas</a>
-            <a class="nav-link text-white" href="#"><i class="bi bi-people-fill me-2"></i>Pasien</a>
-            <a class="nav-link text-white" href="#"><i class="bi bi-file-earmark-text-fill me-2"></i>Transaksi</a>
+            <a class="nav-link text-white" th:href="@{/dashboard}"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+            <a class="nav-link text-white" th:href="@{/dashboard/reservasi}"><i class="bi bi-people-fill me-2"></i>Resevasi</a>
+            <a class="nav-link text-white" th:href="@{/dashboard/paketmcu}"><i class="bi bi-journal-text me-2"></i>Paket MCU</a>
+            <a class="nav-link text-white" th:href="@{/dashboard/petugas}"><i class="bi bi-file-person-fill me-2"></i>Petugas</a>
+            <a class="nav-link text-white" th:href="@{/}"><i class="bi bi-house-door-fill me-2"></i>Home</a>
           </nav>
         </div>
 
@@ -28,54 +29,72 @@
           <!-- Navbar -->
           <nav class="navbar navbar-light bg-light shadow-sm mb-3">
             <div class="container-fluid">
-              <span class="navbar-text">Welcome, Admin</span>
-              <a href="#" class="btn btn-outline-primary"><i class="bi bi-box-arrow-right"></i> Logout</a>
+              <span class="navbar-text" th:text="'Welcome, ' + ${user.name}"></span>
+              <form action="/login/logout" method="POST">
+                <button class="btn btn-outline-primary">Logout</button>
+              </form>
             </div>
           </nav>
 
           <!-- Dashboard Cards -->
           <div class="container">
-            <div class="row g-3">
-              <!-- Card: Pemasukan Hari Ini -->
-              <div class="col-md-4 col-lg-3">
-                <div class="card text-center border-primary">
-                  <div class="card-body">
-                    <h5 class="card-title">Pemasukan Hari Ini</h5>
-                    <h3 class="text-primary">Rp 0</h3>
-                  </div>
-                </div>
-              </div>
-
+            <div class="row g-3 mb-3">
               <!-- Card: Pemasukan Total -->
-              <div class="col-md-4 col-lg-3">
+              <div class="col-md-4 col-lg-4">
                 <div class="card text-center border-info">
                   <div class="card-body">
                     <h5 class="card-title">Pemasukan Total</h5>
-                    <h3 class="text-info">Rp 2.560.000</h3>
+                    <h3 class="text-info" th:text="'Rp ' + ${totalPemasukan}"></h3>
                   </div>
                 </div>
               </div>
 
               <!-- Card: Dalam Proses -->
-              <div class="col-md-4 col-lg-3">
+              <div class="col-md-4 col-lg-4">
                 <div class="card text-center border-warning">
                   <div class="card-body">
                     <h5 class="card-title">Dalam Proses</h5>
-                    <h3 class="text-warning">29</h3>
+                    <h3 class="text-warning" th:text="${jumlahProgres}">29</h3>
                   </div>
                 </div>
               </div>
 
               <!-- Card: Selesai -->
-              <div class="col-md-4 col-lg-3">
+              <div class="col-md-4 col-lg-4">
                 <div class="card text-center border-success">
                   <div class="card-body">
                     <h5 class="card-title">Selesai</h5>
-                    <h3 class="text-success">21</h3>
+                    <h3 class="text-success" th:text="${jumlahSelesai}"></h3>
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
 
+          <div class="row">
+            <div class="col">
+              <table class="table table-bordered">
+                <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Nama Pasien</th>
+                  <th>Paket MCU</th>
+                  <th>Tanggal Pemeriksaan</th>
+                  <th>Harga</th>
+                  <th>Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="pendaftaran, stat : ${pendafratanProgres}">
+                  <td th:text="${stat.index + 1}"></td>
+                  <td th:text="${pendaftaran.pasien.nama}"></td>
+                  <td th:text="${pendaftaran.paketMCU.nama}"></td>
+                  <td th:text="${pendaftaran.tanggalPendaftaran}"></td>
+                  <td th:text="${pendaftaran.paketMCU.harga}"></td>
+                  <td th:text="${pendaftaran.status}"></td>
+                </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>

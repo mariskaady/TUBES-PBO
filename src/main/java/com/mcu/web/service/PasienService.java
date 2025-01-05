@@ -1,5 +1,6 @@
 package com.mcu.web.service;
 
+import com.mcu.web.models.PaketMCU;
 import com.mcu.web.models.Pasien;
 import com.mcu.web.repository.PasienRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,4 +47,12 @@ public class PasienService {
         Optional<Pasien> pasienOptional = pasienRepository.findById(id);
         return pasienOptional.orElseGet(() -> save(pasienDetails));
     }
+
+    public Pasien findByNomorTelepon(String nomorTelepon) {
+        return pasienRepository.findByNomorTelepon(nomorTelepon);
+    }
+    public void update(Pasien pasien) {
+        pasienRepository.save(pasien); // Save perubahan
+    }
+
 }

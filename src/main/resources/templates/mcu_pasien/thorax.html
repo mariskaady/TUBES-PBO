@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
@@ -10,14 +10,22 @@
 
 <body>
     <div class="container mt-5">
-        <div class="card">
+        <div th:if="${#lists.isEmpty(thoraxList)}">
+            <div class="alert alert-warning text-center">
+                <strong>Paket tidak tersedia</strong>
+                <a th:href="@{/}" class="btn btn-secondry">Kembali</a>
+            </div>
+        </div>
+
+        <a th:href="@{/}" class="btn btn-secondary">Kembali</a>
+        <div th:unless="${#lists.isEmpty(thoraxList)}" class="card mb-3" th:each="paket : ${thoraxList}">
             <div class="card-header bg-primary text-white text-center">
-                <h4>Paket Pemeriksaan Thorax</h4>
+                <h4 th:text="'Paket Pemeriksaan ' + ${paket.nama}"></h4>
             </div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6 d-flex align-items-center">
-                        <img src="{{ asset('images/thorax.jpg') }}" alt="Gambar Pemeriksaan Thorax" class="img-fluid rounded mx-auto d-block">
+                        <img th:src="@{src/th_thorax.png}" alt="Gambar Pemeriksaan Thorax" class="img-fluid rounded mx-auto d-block" style="height: 400px">
                     </div>
                     <div class="col-md-6">
                         <p>Pemeriksaan Thorax untuk memeriksa kondisi paru-paru dan jantung.</p>
@@ -26,15 +34,9 @@
                             <li>CT Scan</li>
                             <li>Konsul Dokter Spesialis Paru (Sp.P)</li>
                         </ul>
-                        <h5 class="mt-4">Paket Pemeriksaan Thorax</h5>
-                        <h4 class="text-danger">Rp 350.000,00</h4>
-                        <form action="/pendaftaran_mcu" method="post">
-                            @csrf
-                            <input type="hidden" name="pasien_id" value="1">
-                            <input type="hidden" name="paket_id" value="1">
-                            <button class="btn btn-success mt-3" type="submit">Reservasi Sekarang</button>
-                        </form>
-                        <!-- <a href="#" class="btn btn-success mt-3">Reservasi Sekarang</a> -->
+                        <h5 class="mt-4" th:text="'Paket Pemeriksaan ' + ${paket.nama}"></h5>
+                        <h4 class="text-danger mb-3" th:text="'Rp ' + ${paket.harga}"></h4>
+                         <a th:href="@{/pendaftaran/{id}(id=${paket.id})}" class="btn btn-success mt-3">Reservasi Sekarang</a>
                     </div>
                 </div>
             </div>

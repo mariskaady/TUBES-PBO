@@ -1,79 +1,97 @@
 package com.mcu.web.controllers;
 
+import com.mcu.web.models.Pasien;
 import com.mcu.web.models.PendaftaranMCU;
+import com.mcu.web.models.User;
+import com.mcu.web.service.PaketMCUService;
+import com.mcu.web.service.PasienService;
 import com.mcu.web.service.PendaftaranMCUService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.List;
+import java.time.LocalDate;
 
-@RestController
-@RequestMapping("/api/pendaftaran")
+@Controller
+@RequestMapping("/pendaftaran")
 public class PendaftaranMCUController {
+
+    @Autowired
+    private PaketMCUService paketMCUService;
+
+    @Autowired
+    private PasienService pasienService;
 
     @Autowired
     private PendaftaranMCUService pendaftaranMCUService;
 
-    // Mendaftarkan pasien untuk MCU
-    @PostMapping
-    public ResponseEntity<PendaftaranMCU> registerMCU(@RequestBody PendaftaranMCU pendaftaranMCU) {
-        try {
-            PendaftaranMCU savedPendaftaran = pendaftaranMCUService.registerForMCU(pendaftaranMCU.getPasien().getId(), pendaftaranMCU.getPaketMCU().getId());
-            return ResponseEntity.ok(savedPendaftaran);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(null);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(null);  // Handle generic exceptions.
-        }
-    }
-
-    // Mengambil data pendaftaran MCU berdasarkan ID
     @GetMapping("/{id}")
-    public ResponseEntity<PendaftaranMCU> getPendaftaranById(@PathVariable Long id) {
-        PendaftaranMCU pendaftaranMCU = pendaftaranMCUService.getPendaftaranById(id);
-        if (pendaftaranMCU != null) {
-            return ResponseEntity.ok(pendaftaranMCU);
-        }
-        return ResponseEntity.notFound().build();
+    public String showForm(@PathVariable Long id, Model model) {
+        model.addAttribute("paketMCU", paketMCUService.findById(id)); // Ambil paket berdasarkan ID
+        return "pendaftaran_mcu/index"; // Nama template untuk form pendaftaran
     }
 
-    // Mengambil daftar pendaftaran MCU berdasarkan pasien
-    @GetMapping("/pasien/{pasienId}")
-    public ResponseEntity<List<PendaftaranMCU>> getPendaftaranByPasien(@PathVariable Long pasienId) {
-        List<PendaftaranMCU> pendaftaranList = pendaftaranMCUService.getPendaftaranByPasien(pasienId);
-        if (pendaftaranList != null && !pendaftaranList.isEmpty()) {
-            return ResponseEntity.ok(pendaftaranList);
-        }
-        return ResponseEntity.noContent().build();
-    }
+    @PostMapping
+    public String submitForm(HttpSession session, @RequestParam String nama,
+                             @RequestParam String alamat,
+                             @RequestParam String nomorTelepon,
+                             @RequestParam String statusPasien,
+                             @RequestParam String paket,
+                             @RequestParam String jadwal,
+                             RedirectAttributes redirectAttributes,
+                             Model model) {
+        User user = (User) session.getAttribute("user");
 
-    // Mengambil daftar pendaftaran MCU berdasarkan paket
-    @GetMapping("/paket/{paketId}")
-    public ResponseEntity<List<PendaftaranMCU>> getPendaftaranByPaket(@PathVariable Long paketId) {
-        List<PendaftaranMCU> pendaftaranList = pendaftaranMCUService.getPendaftaranByPaket(paketId);
-        return ResponseEntity.ok(pendaftaranList);
-    }
-
-    // Mengambil daftar pendaftaran MCU berdasarkan periode tanggal
-    @GetMapping("/periode")
-    public ResponseEntity<List<PendaftaranMCU>> getPendaftaranByPeriode(@RequestParam String startDate, @RequestParam String endDate) {
-        try {
-            List<PendaftaranMCU> pendaftaranList = pendaftaranMCUService.getPendaftaranByPeriode(startDate, endDate);
-            return ResponseEntity.ok(pendaftaranList);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(null);
+        if (user == null || !"User".equalsIgnoreCase(user.getRole())) {
+            // Redirect ke halaman login atau halaman lain yang diinginkan
+            redirectAttributes.addFlashAttribute("errorMessage", "Anda harus login terlebih dahulu.");
+            return "redirect:/login";  // Arahkan ke halaman login
         }
-    }
 
-    // Menghapus pendaftaran MCU berdasarkan ID
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePendaftaran(@PathVariable Long id) {
-        try {
-            pendaftaranMCUService.deletePendaftaran(id);
-            return ResponseEntity.noContent().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(500).build();
+        model.addAttribute("user", user);
+
+        Pasien pasien;
+
+        if ("User".equalsIgnoreCase(user.getRole())) {
+            // Jika pasien baru
+            if ("baru".equals(statusPasien)) {
+                // Periksa apakah pasien dengan nomor telepon yang sama sudah ada
+                pasien = pasienService.findByNomorTelepon(nomorTelepon);
+
+                if (pasien != null) {
+                    // Jika pasien sudah ada, tampilkan pesan error dan arahkan kembali
+                    redirectAttributes.addFlashAttribute("errorMessage", "Pasien dengan nomor telepon " + nomorTelepon + " sudah terdaftar.");
+                    return "redirect:/pendaftaran/" + paket;  // Arahkan kembali ke halaman pendaftaran
+                } else {
+                    // Jika pasien baru, simpan pasien baru
+                    pasien = new Pasien();
+                    pasien.setNama(nama);
+                    pasien.setAlamat(alamat);
+                    pasien.setNomorTelepon(nomorTelepon);
+                    pasien.setUser(user);
+                    pasienService.save(pasien); // Simpan pasien baru
+                }
+            } else {
+                // Jika pasien lama, cari pasien berdasarkan nomor telepon
+                pasien = pasienService.findByNomorTelepon(nomorTelepon);
+
+                if (pasien == null) {
+                    redirectAttributes.addFlashAttribute("errorMessage", "Pasien dengan nomor telepon " + nomorTelepon + " tidak ditemukan.");
+                    return "redirect:/pendaftaran/" + paket;
+                }
+            }
+
+            // Setelah mendapatkan pasien, simpan pendaftaran MCU
+            PendaftaranMCU pendaftaranMCU = new PendaftaranMCU();
+            pendaftaranMCU.setPasien(pasien);
+            pendaftaranMCU.setPaketMCU(paketMCUService.findById(Long.parseLong(paket))); // Cari paket berdasarkan ID
+            pendaftaranMCU.setTanggalPendaftaran(LocalDate.parse(jadwal)); // Set jadwal pemeriksaan
+            pendaftaranMCU.setStatus("Progres"); // Set status pendaftaran
+            pendaftaranMCUService.save(pendaftaranMCU); // Simpan pendaftaran MCU
         }
+        return "redirect:/"; // Redirect ke halaman utama setelah proses berhasil
     }
 }

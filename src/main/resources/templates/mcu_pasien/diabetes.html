@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
@@ -10,14 +10,22 @@
 
 <body>
     <div class="container mt-5">
-        <div class="card">
+        <div th:if="${#lists.isEmpty(diabetesList)}">
+            <div class="alert alert-warning text-center">
+                <strong>Paket tidak tersedia</strong>
+                <a th:href="@{/}" class="btn btn-secondry">Kembali</a>
+            </div>
+        </div>
+
+        <a th:href="@{/}" class="btn btn-secondary">Kembali</a>
+        <div th:unless="${#lists.isEmpty(diabetesList)}" class="card" th:each="paket : ${diabetesList}">
             <div class="card-header bg-primary text-white text-center">
-                <h4>Paket Promo Diabetes</h4>
+                <h4 th:text="'Paket Pemeriksaan ' + ${paket.nama}"></h4>
             </div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6 d-flex align-items-center">
-                        <img src="{{ asset('images/Pemeriksaan Diabetes.jpg') }}" alt="Gambar Pemeriksaan Diabetes" class="img-fluid rounded mx-auto d-block">
+                        <img th:src="@{src/th_diabetes.png}" alt="Gambar Pemeriksaan Diabetes" class="img-fluid rounded mx-auto d-block" style="height: 400px">
                     </div>
                     <div class="col-md-6">
                         <p>Pemeriksaan Diabetes membantu Anda untuk mendeteksi diabetes dini.</p>
@@ -28,9 +36,9 @@
                             <li>HbA1c</li>
                             <li>Konsul Dokter Spesialis Penyakit Dalam (Sp.PD)</li>
                         </ul>
-                        <h5 class="mt-4">Paket Promo Diabetes</h5>
-                        <h4 class="text-danger">Rp 544.350,00</h4>
-                        <a href="#" class="btn btn-success mt-3">Reservasi Sekarang</a>
+                        <h5 class="mt-4" th:text="'Paket Pemeriksaan ' + ${paket.nama}"></h5>
+                        <h4 class="text-danger" th:text="'Rp ' + ${paket.harga}"></h4>
+                        <a th:href="@{/pendaftaran/{id}(id=${paket.id})}" class="btn btn-success mt-3">Reservasi Sekarang</a>
                     </div>
                 </div>
             </div>

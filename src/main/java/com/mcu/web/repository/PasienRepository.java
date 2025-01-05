@@ -26,4 +26,5 @@ public interface PasienRepository extends JpaRepository<Pasien, Long> {
 
     @Query("SELECT p FROM Pasien p WHERE p.id = :id OR LOWER(p.nama) LIKE LOWER(CONCAT('%', :nama, '%'))")
     List<Pasien> findByIdOrNama(@Param("id") Long id, @Param("nama") String nama);
+
 }

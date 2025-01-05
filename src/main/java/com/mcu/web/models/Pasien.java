@@ -4,9 +4,13 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.*;
 
 @Entity
 @Table(name = "pasien")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Pasien {
 
     @Id
@@ -25,56 +29,7 @@ public class Pasien {
     @Pattern(regexp = "\\d{10,15}", message = "Nomor telepon harus berupa angka dan memiliki panjang 10-15 karakter")
     private String nomorTelepon;
 
-    public Pasien() {
-        // Default constructor
-    }
-
-    public Pasien(String nama, String alamat, String nomorTelepon) {
-        this.nama = nama;
-        this.alamat = alamat;
-        this.nomorTelepon = nomorTelepon;
-    }
-
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNama() {
-        return nama;
-    }
-
-    public void setNama(String nama) {
-        this.nama = nama;
-    }
-
-    public String getAlamat() {
-        return alamat;
-    }
-
-    public void setAlamat(String alamat) {
-        this.alamat = alamat;
-    }
-
-    public String getNomorTelepon() {
-        return nomorTelepon;
-    }
-
-    public void setNomorTelepon(String nomorTelepon) {
-        this.nomorTelepon = nomorTelepon;
-    }
-
-    @Override
-    public String toString() {
-        return "Pasien{" +
-                "id=" + id +
-                ", nama='" + nama + '\'' +
-                ", alamat='" + alamat + '\'' +
-                ", nomorTelepon='" + nomorTelepon + '\'' +
-                '}';
-    }
+    @ManyToOne
+    @JoinColumn(name = "user_id")  // Kolom untuk menyimpan ID User
+    private User user;
 }
