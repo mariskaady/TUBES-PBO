@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sistem Medical Check Up</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+
+<body>
+<div class="container-fluid">
+  <div class="row vh-100">
+
+    <!-- Sidebar -->
+    <aside class="col-2 bg-primary text-white d-flex flex-column p-3">
+      <h4 class="text-center mb-4">BANDUNG SEHAT</h4>
+      <nav class="nav flex-column">
+        <a class="nav-link text-white" th:href="@{/petugas}"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+        <a class="nav-link text-white" th:href="@{/petugas/reservasi}"><i class="bi bi-people-fill me-2"></i>Resevasi</a>
+        <a class="nav-link text-white" th:href="@{/petugas/paketmcu}"><i class="bi bi-journal-text me-2"></i>Paket MCU</a>
+        <a class="nav-link text-white" th:href="@{/petugas/managepetugas}"><i class="bi bi-file-person-fill me-2"></i>Petugas</a>
+        <a class="nav-link text-white" th:href="@{/}"><i class="bi bi-house-door-fill me-2"></i>Home</a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="col-10">
+
+      <!-- Navbar -->
+      <nav class="navbar navbar-light bg-light shadow-sm mb-3">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
+          <span class="navbar-text" th:text="'Welcome, ' + ${#strings.capitalize(user.username)}"></span>
+          <a th:if="${user != null}" href="/logout" class="btn btn-danger">Logout</a>
+        </div>
+      </nav>
+
+      <!-- Form Section -->
+      <div class="container mt-5">
+        <h1 class="mb-4">Edit Paket MCU</h1>
+<!--        Alert-->
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+          <span th:text="${success}"></span>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+          <span th:text="${error}"></span>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <form th:action="@{/petugas/paketmcu/edit/{id}(id=${paketMCU.id})}" method="POST">
+          <div class="mb-3">
+            <label for="nama" class="form-label">Nama Paket</label>
+            <input type="text" class="form-control" id="nama" name="nama" placeholder="Masukkan nama Paket" th:value="${paketMCU.nama}" required>
+          </div>
+          <div class="mb-3">
+            <label for="jenis" class="form-label">Jenis Pemeriksaan</label>
+            <select class="form-select" id="jenis" name="jenis" required>
+              <option selected>Pilih Jenis Pemeriksaan</option>
+              <option value="abdomenn" th:selected="${paketMCU.jenis == 'abdomen'}">Abdomen</option>
+              <option value="diabetes" th:selected="${paketMCU.jenis == 'diabetes'}">Diabetes</option>
+              <option value="skoliosis" th:selected="${paketMCU.jenis == 'skoliosis'}">Skoliosis</option>
+              <option value="tbc" th:selected="${paketMCU.jenis == 'tbc'}">TBC</option>
+              <option value="thorax" th:selected="${paketMCU.jenis == 'thorax'}">Thorax</option>
+            </select>
+          </div>
+          <!--                    Kategori Low Medium High-->
+          <div class="mb-3">
+            <label for="kategori" class="form-label">Kategori</label>
+            <select class="form-select" id="kategori" name="kategori" required>
+              <option selected>Pilih Kategori Pemeriksaan</option>
+              <option value="low" th:selected="${paketMCU.kategori == 'low'}">Low</option>
+              <option value="medium" th:selected="${paketMCU.kategori == 'medium'}">Medium</option>
+              <option value="high" th:selected="${paketMCU.kategori == 'high'}">High</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="deskripsi" class="form-label">Deskripsi</label>
+            <textarea class="form-control" name="deskripsi" id="deskripsi" rows="8" placeholder="Masukkan Deskripsi" th:text="${paketMCU.deskripsi}" required></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="harga" class="form-label">Harga</label>
+            <input type="number" class="form-control" id="harga" name="harga" placeholder="Masukkan harga" th:value="${paketMCU.harga}" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Simpan</button>
+          <a th:href="@{/petugas/paketmcu}" class="btn btn-secondary">Kembali</a>
+        </form>
+      </div>
+
+    </main>
+
+  </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+
+</html>

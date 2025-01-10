@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sistem Medical Check Up</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+<div class="container-fluid">
+  <div class="row" style="height: 100vh">
+    <!-- Sidebar -->
+    <div class="col-2 bg-primary text-white">
+      <div class="p-3">
+        <h4 class="text-center">BANDUNG SEHAT</h4>
+      </div>
+      <nav class="nav flex-column">
+        <a class="nav-link text-white" th:href="@{/petugas}"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+        <a class="nav-link text-white" th:href="@{/petugas/reservasi}"><i class="bi bi-people-fill me-2"></i>Resevasi</a>
+        <a class="nav-link text-white" th:href="@{/petugas/paketmcu}"><i class="bi bi-journal-text me-2"></i>Paket MCU</a>
+        <a class="nav-link text-white" th:href="@{/petugas/managepetugas}"><i class="bi bi-file-person-fill me-2"></i>Petugas</a>
+        <a class="nav-link text-white" th:href="@{/}"><i class="bi bi-house-door-fill me-2"></i>Home</a>
+      </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="col-10">
+      <!-- Navbar -->
+      <nav class="navbar navbar-light bg-light shadow-sm mb-3">
+        <div class="container-fluid">
+          <span class="navbar-text" th:text="'Welcome, ' + ${#strings.capitalize(user.username)}"></span>
+          <a th:if="${user != null}" href="/logout" class="btn btn-danger">Logout</a>
+        </div>
+      </nav>
+
+      <!-- Dashboard Cards -->
+      <div class="container mt-5">
+        <h1>Daftar Reservasi MCU</h1>
+        <!--            Alert-->
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+          <span th:text="${success}"></span>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+          <span th:text="${error}"></span>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <form th:action="@{/petugas/reservasi}" method="GET">
+          <div class="input-group mb-3">
+            <input type="text" class="form-control" name="namaPasien" placeholder="Nama Pasien" th:value="${param.namaPasien}">
+            <input type="text" class="form-control" name="namaPaket" placeholder="Nama Paket" th:value="${param.namaPaket}">
+            <input type="date" class="form-control" name="periodeWaktu" placeholder="Periode Waktu" th:value="${param.periodeWaktu}">
+            <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Cari</button>
+          </div>
+        </form>
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Nama Pasien</th>
+              <th>Paket</th>
+              <th>Jenis Pemeriksaan</th>
+              <th>Tanggal Pendaftaran</th>
+              <th>Harga</th>
+              <th>Status</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="pendaftaranMCU, iter : ${pendaftaranMCU}">
+              <th th:text="${iter.index + 1}"></th>
+              <td th:text="${#strings.capitalize(pendaftaranMCU.pasien.nama)}"></td>
+              <td th:text="${#strings.capitalize(pendaftaranMCU.paketMCU.nama)}"></td>
+              <td th:text="${#strings.capitalize(pendaftaranMCU.paketMCU.jenis)}"></td>
+              <td th:text="${#temporals.format(pendaftaranMCU.booking, 'dd MMMM yyyy')}"></td>
+              <td th:text="'Rp ' + ${#numbers.formatInteger(pendaftaranMCU.paketMCU.harga, 1, 'POINT')}"></td>
+              <td>
+                <span th:if="${pendaftaranMCU.status == 'pending'}" class="badge text-bg-secondary">Pending</span>
+                <span th:if="${pendaftaranMCU.status == 'complete'}" class="badge text-bg-success">Complete</span>
+              </td>
+              <td>
+                <a th:href="@{/petugas/reservasi/edit/{id}(id=${pendaftaranMCU.id})}" class="btn btn-warning btn-sm">Edit</a>
+                <a th:href="@{/petugas/reservasi/delete/{id}(id=${pendaftaranMCU.id})}" class="btn btn-danger btn-sm" onclick="alert('Ingin dihapus?')">Delete</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>
