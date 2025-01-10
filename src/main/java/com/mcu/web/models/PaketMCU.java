@@ -1,4 +1,4 @@
-package com.mcu.web.models
+package com.mcu.web.models;
 
 import jakarta.persistence.*;
 import lombok.Data;
