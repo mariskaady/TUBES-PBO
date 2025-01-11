@@ -1,14 +1,14 @@
 package com.mcu.web.models;
-;;;;;
+
 import jakarta.persistence.*;
 import lombok.Data;
-;;;;;
+
 import java.util.List;
-;;;;;
+
 @Entity
 @Data
 public class PaketMCU {
-;;;;;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
