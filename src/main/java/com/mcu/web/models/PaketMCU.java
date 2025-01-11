@@ -24,3 +24,7 @@ public class PaketMCU {
     @OneToMany(mappedBy = "paketMCU")
     private List<PendaftaranMCU> pendaftaranMCUList;
 }
+
+
+
+aku suka sama kamu kamu suka sama aku aku suka sama temanmu temanku suka sama akuuuuuuuuuuuu
